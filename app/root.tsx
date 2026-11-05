@@ -10,7 +10,7 @@ import { THEME_BOOTSTRAP } from "./lib/theme";
 import { ThemeProvider } from "./lib/theme-context";
 
 export const links: LinksFunction = () => [
-  { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+  { rel: "icon", type: "image/svg+xml", href: `${import.meta.env.BASE_URL}favicon.svg` },
   { rel: "stylesheet", href: appStylesHref },
 ];
 

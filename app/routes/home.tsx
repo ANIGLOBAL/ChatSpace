@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useOutletContext } from "react-router";
+﻿import { useEffect, useState } from "react";
+import { Link, useNavigate, useOutletContext } from "react-router";
 
 import { api, type MiniUser, type SpaceRow } from "~/lib/api";
 
@@ -7,6 +7,7 @@ type OutletCtx = { user: MiniUser | null; refreshUser: () => void };
 
 export default function Home() {
   const { user } = useOutletContext<OutletCtx>();
+  const navigate = useNavigate();
   const [spaces, setSpaces] = useState<SpaceRow[] | null>(null);
   const [owned, setOwned] = useState<number>(0);
   const [joinId, setJoinId] = useState("");
@@ -32,28 +33,45 @@ export default function Home() {
 
   if (!user) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-14">
-        <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl dark:text-white">
-          Không gian nhóm của riêng bạn
-        </h1>
-        <p className="mt-3 text-[15px] leading-7 text-slate-600 dark:text-slate-300">
-          ChatSpace là lớp Group Space trên hạ tầng ChatIndex: mỗi tài khoản tạo một không gian
-          riêng, mời đúng người, đúng quyền (Owner / Admin / Member), tin nhắn và tệp không sót ra
-          ngoài.
-        </p>
-        <ul className="mt-6 space-y-2 text-[14px] text-slate-700 dark:text-slate-200">
-          <li>• Nhập Group ID để tham gia kênh của người khác.</li>
-          <li>• Chủ nhóm bật/tắt duyệt thành viên, chuyển quyền, xoá nhóm.</li>
-          <li>• Bảo mật: thành viên ngoài không đọc được nội dung, cookie phiên SameSite=None + HttpOnly.</li>
-        </ul>
-        <div className="mt-8 flex gap-3">
-          <Link to="/sign-in" className="rounded-lg bg-indigo-600 px-4 py-2 text-[14px] font-semibold text-white hover:bg-indigo-500">
-            Đăng nhập
-          </Link>
-          <Link to="/sign-up" className="rounded-lg border border-slate-300 px-4 py-2 text-[14px] font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">
-            Tạo tài khoản
-          </Link>
-        </div>
+      <main className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-indigo-100/70 to-transparent dark:from-indigo-950/30" />
+        <section className="relative mx-auto max-w-3xl px-4 py-16 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-[12px] font-semibold text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300">
+            Lớp Group Space trên hạ tầng ChatIndex
+          </span>
+          <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
+            Không gian nhóm<br />
+            <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-violet-400">
+              của riêng bạn
+            </span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl text-[15px] leading-7 text-slate-600 dark:text-slate-300">
+            Mỗi tài khoản tạo một Group Space riêng: mời đúng người, đúng vai trò (Owner / Admin / Member),
+            tin nhắn và tệp không lan ra ngoài — kiểm soát hoàn toàn bởi chủ nhóm.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/sign-in" className="rounded-xl bg-indigo-600 px-5 py-2.5 text-[14px] font-semibold text-white shadow transition hover:bg-indigo-500">
+              Đăng nhập
+            </Link>
+            <Link to="/sign-up" className="rounded-xl border border-slate-300 px-5 py-2.5 text-[14px] font-semibold text-slate-700 transition hover:bg-white dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">
+              Tạo tài khoản
+            </Link>
+          </div>
+          <ul className="mx-auto mt-12 grid max-w-2xl gap-3 text-left text-[13px] text-slate-700 sm:grid-cols-3 dark:text-slate-200">
+            <li className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <b className="block text-slate-900 dark:text-white">Nhập Group ID</b>
+              Chủ nhóm chia sẻ cs-…, bạn yêu cầu tham gia; bật duyệt thì Owner duyệt từng lượt.
+            </li>
+            <li className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <b className="block text-slate-900 dark:text-white">Quyền rõ ràng</b>
+              Owner quản settings & thành viên; Admin hỗ trợ sàng lọc; Member chat + xem hồ sơ.
+            </li>
+            <li className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <b className="block text-slate-900 dark:text-white">Riêng tư tuyệt đối</b>
+              Người ngoài nhóm không đọc nội dung dù biết Group ID; phiên cookie HttpOnly + Secure.
+            </li>
+          </ul>
+        </section>
       </main>
     );
   }
@@ -81,7 +99,7 @@ export default function Home() {
     setCreateName("");
     setMsg({ text: "Đã tạo không gian." });
     refresh();
-    window.location.assign(`/groups/${answer.data.groupSpace.groupId}`);
+    navigate(`groups/${answer.data.groupSpace.groupId}`);
   }
 
   async function joinSpace() {
@@ -95,7 +113,7 @@ export default function Home() {
     }
     setJoinId("");
     refresh();
-    window.location.assign(`/groups/${joinId.trim()}`);
+    navigate(`groups/${joinId.trim()}`);
   }
 
   return (

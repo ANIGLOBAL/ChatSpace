@@ -10,11 +10,8 @@ import GroupPage from "./routes/groups.$groupId";
 import MemberPage from "./routes/members.$userId";
 import Control from "./routes/control";
 
-// GH Pages host dưới /ChatSpace/ (basename bởi basename config) — workers dùng "/".
-const basename =
-  typeof process !== "undefined" && process.env?.CHATSPACE_BASE
-    ? process.env.CHATSPACE_BASE
-    : "/";
+// basename theo nơi triển khai: workers "/" còn GitHub Pages /ChatSpace/.
+const basename = import.meta.env.BASE_URL;
 
 
 const router = createBrowserRouter(

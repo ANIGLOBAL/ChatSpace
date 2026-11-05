@@ -3,7 +3,7 @@ import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
-const base = process.env.CHATSPACE_BASE || "/";
+const base = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.CHATSPACE_BASE || "/";
 
 export default defineConfig({
   base,
