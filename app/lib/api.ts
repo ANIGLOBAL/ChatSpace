@@ -58,6 +58,8 @@ export type MiniUser = {
   role: "user" | "admin";
   status: string;
   image: string | null;
+  bannerFileId?: string | null;
+  plan?: string;
 };
 
 export type SpaceRow = {
@@ -74,5 +76,35 @@ export type SpaceRow = {
 export async function getSessionUser(): Promise<MiniUser | null> {
   const result = await api<{ user?: MiniUser | null }>("/api/auth/get-session");
   if (!result.ok) return null;
-  return result.data.user ?? null;
+  // get-session might not carry plan/banner — follow with /api/me if needed.
+  try {
+    const me = await api<{ user?: MiniUser | null }>("/api/me");
+    const base = result.data.user ?? null;
+    if (me.ok && me.data.user) {
+      return { ...base!, ...me.data.user };
+    }
+    return base;
+  } catch {
+    return result.data.user ?? null;
+  }
+}
+
+/** Upload one image file through /api/files and return its id. */
+export async function uploadImageFile(file: File): Promise<string | null> {
+  const form = new FormData();
+  form.append("file", file);
+  const response = await fetch(`${apiBase()}/api/files`, {
+    method: "POST",
+    credentials: "include",
+    body: form,
+  });
+  let payload: unknown = null;
+  try {
+    payload = await response.json();
+  } catch {
+    // ignore
+  }
+  if (!response.ok) return null;
+  const data = payload as { file?: { id?: string } };
+  return data?.file?.id ?? null;
 }

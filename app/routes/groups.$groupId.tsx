@@ -158,7 +158,7 @@ export default function GroupPage() {
       </main>
     );
   }
-  if (meta.membership === "none" || meta.membership === undefined) {
+  if (meta.membership === "none") {
     return (
       <main className="mx-auto max-w-xl px-4 py-14" data-testid="nonmember-view">
         <div className="rounded-2xl border border-slate-200 bg-white p-8 dark:border-slate-700 dark:bg-slate-900">
