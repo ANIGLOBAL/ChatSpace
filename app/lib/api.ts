@@ -23,13 +23,12 @@ export async function api<T = unknown>(
   path: string,
   init?: RequestInit,
 ): Promise<{ ok: true; data: T } | { ok: false; error: string; status: number }> {
+  const wantsJson = !(init?.body instanceof FormData);
   const response = await fetch(`${apiBase()}${path}`, {
     credentials: "include",
     ...init,
     headers: {
-      ...(init?.body && !(init.body instanceof FormData)
-        ? { "content-type": "application/json" }
-        : {}),
+      ...(wantsJson ? { "content-type": "application/json" } : {}),
       ...(init?.headers ?? {}),
     },
   });
