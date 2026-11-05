@@ -52,4 +52,6 @@ const html = `<!doctype html>
 </html>
 `;
 writeFileSync(join(root, "index.html"), html, "utf8");
-console.log(`index.html written (base=${base}, entry=${entry}, manifest=${manifest}, css=${css}, lib=${apiBlock})`);
+// GH Pages fallback: deeper routes refresh → 404.html chứa cùng SPA.
+writeFileSync(join(root, "404.html"), html, "utf8");
+console.log(`index.html + 404.html written (base=${base}, entry=${entry}, manifest=${manifest}, css=${css}, lib=${apiBlock})`);
