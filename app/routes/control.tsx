@@ -237,26 +237,26 @@ export default function Control() {
     <main className="mx-auto max-w-4xl px-4 py-10 space-y-6">
       {/* PROFILE */}
       <section className={card} data-testid="profile-card">
-        <div className="relative h-48 sm:h-56 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500">
+        <div className="relative mb-4 h-48 sm:h-56 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500">
           {user.bannerFileId ? (
-            <img src={`${apiBase()}/api/files/${user.bannerFileId}`} alt="Banner" className="h-full w-full object-cover" />
+            <img src={`${apiBase()}/api/files/${user.bannerFileId}`} alt="Banner" className="absolute inset-0 h-full w-full object-cover" />
           ) : null}
         </div>
-        <div className="-mt-8 flex flex-wrap items-end gap-4">
-          <span className="grid h-16 w-16 flex-none place-items-center overflow-hidden rounded-2xl bg-indigo-600 text-2xl font-bold text-white shadow-md">
+        <div className="flex flex-wrap items-end gap-4">
+          <span className="grid h-16 w-16 flex-none place-items-center overflow-hidden rounded-2xl bg-indigo-600 text-2xl font-bold text-white shadow-md ring-4 ring-white dark:ring-slate-900">
             {user.image ? (
               <img src={`${apiBase()}/api/files/${user.image}`} alt="Avatar" className="h-full w-full object-cover" />
             ) : (
               (user.name || "?").slice(0, 1).toUpperCase()
             )}
           </span>
-          <div>
-            <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">{user.name}</h1>
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-extrabold text-slate-900 dark:text-white">{user.name}</h1>
             <p className="text-[13px] text-slate-500">
               @{user.username} · ID định danh: <span className="font-mono font-bold text-slate-700 dark:text-slate-200">{user.id}</span>
             </p>
           </div>
-          <span className={"text-[11px] font-bold uppercase " + (user.plan && user.plan !== "free" ? "text-amber-600" : "text-slate-400")}>
+          <span className={"ml-auto text-[11px] font-bold uppercase " + (user.plan && user.plan !== "free" ? "text-amber-600" : "text-slate-400")}>
             {PLAN_LABELS[user.plan ?? "free"] ?? "Miễn phí"}
           </span>
         </div>
