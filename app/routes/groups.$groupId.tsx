@@ -345,17 +345,27 @@ export default function GroupPage() {
             }} className="rounded-lg bg-indigo-600 px-3 py-2 text-[13px] font-semibold text-white hover:bg-indigo-500">
               Lưu
             </button>
-            <label className="flex items-center gap-2 text-[13px] text-slate-700 dark:text-slate-200" data-testid="approval-switch">
-              <input
-                type="checkbox"
-                checked={meta.requireOwnerApproval === true}
-                onChange={async (event) => {
-                  await api(`/api/spaces/${groupId}`, { method: "PATCH", body: JSON.stringify({ requireOwnerApproval: event.target.checked }) });
-                  loadMeta();
-                }}
-              />
+            <button
+              type="button"
+              role="switch"
+              aria-checked={meta.requireOwnerApproval === true}
+              data-testid="approval-switch"
+              className="flex items-center gap-3"
+              onClick={async () => {
+                const next = meta.requireOwnerApproval !== true;
+                await api(`/api/spaces/${groupId}`, { method: "PATCH", body: JSON.stringify({ requireOwnerApproval: next }) });
+                setNotice(next ? "Bật duyệt thành viên mới." : "Tắt duyệt thành viên mới.");
+                loadMeta();
+              }}
+            >
+            <span className={"relative inline-flex h-7 w-12 items-center rounded-full transition-colors " + (meta.requireOwnerApproval === true ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600")}>
+              <span className={"inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform " + (meta.requireOwnerApproval === true ? "translate-x-5" : "translate-x-0.5")} />
+            </span>
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200">
               Duyệt thành viên mới
-            </label>
+              <span className="block text-[11px] font-normal text-slate-500">{meta.requireOwnerApproval === true ? "Chủ nhóm duyệt từng lượt" : "Cho phép tham gia trực tiếp"}</span>
+            </span>
+            </button>
           </div>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
