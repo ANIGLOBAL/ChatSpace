@@ -1,1 +1,0 @@
-export{t as default}from"./sign-up-C_RIyXwn.js";
