@@ -434,17 +434,10 @@ export default function GroupPage() {
                 {requests.map((joinRequest) => (
                   <li key={joinRequest.requestId} className="flex items-center gap-2">
                     <span className="truncate text-slate-700 dark:text-slate-200">{joinRequest.name || "@" + joinRequest.username}</span>
-                    <button type="button" className="ml-auto font-semibold text-emerald-600 hover:underline" onClick={async () => {
-                      await api(`/api/spaces/${groupId}/requests/${joinRequest.requestId}`, { method: "POST", body: JSON.stringify({ action: "approve" }) });
-                      loadRequests();
-                      loadMembers();
-                    }}>
+                    <button type="button" className="ml-auto font-semibold text-emerald-600 hover:underline" onClick={() => void decide(joinRequest.requestId, "approve")}>
                       Duyệt
                     </button>
-                    <button type="button" className="font-semibold text-red-500 hover:underline" onClick={async () => {
-                      await api(`/api/spaces/${groupId}/requests/${joinRequest.requestId}`, { method: "POST", body: JSON.stringify({ action: "reject" }) });
-                      loadRequests();
-                    }}>
+                    <button type="button" className="font-semibold text-red-500 hover:underline" onClick={() => void decide(joinRequest.requestId, "reject")}>
                       Từ chối
                     </button>
                   </li>
@@ -452,6 +445,30 @@ export default function GroupPage() {
               </ul>
             </div>
           ) : null}
+        </section>
+      ) : null}
+
+      {isOwner && requests.length > 0 ? (
+        <section className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-600/40 dark:bg-amber-950/30" data-testid="requests-alert">
+          <div className="flex items-center gap-2">
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-amber-100 text-[13px] font-bold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">⧗</span>
+            <h3 className="text-[14px] font-bold text-amber-800 dark:text-amber-200">Yêu cầu tham gia chờ duyệt ({requests.length})</h3>
+            <button type="button" onClick={async () => { await api(`/api/spaces/${groupId}`, { method: "PATCH", body: JSON.stringify({}) }); }} className="hidden">.</button>
+            <span className="ml-auto text-[11px] text-amber-600 dark:text-amber-400">Mở Cài đặt Owner để duyệt từng lượt</span>
+          </div>
+          <ul className="mt-2 space-y-1.5 text-[13px]">
+            {requests.map((joinRequest) => (
+              <li key={joinRequest.requestId} className="flex items-center gap-2">
+                <span className="truncate text-amber-900 dark:text-amber-100">{joinRequest.name || "@" + joinRequest.username}</span>
+                <button type="button" className="ml-auto rounded-lg bg-emerald-600 px-2.5 py-1 text-[12px] font-bold text-white hover:bg-emerald-500" onClick={() => void decide(joinRequest.requestId, "approve")}>
+                  Duyệt
+                </button>
+                <button type="button" className="rounded-lg bg-red-500 px-2.5 py-1 text-[12px] font-bold text-white hover:bg-red-400" onClick={() => void decide(joinRequest.requestId, "reject")}>
+                  Từ chối
+                </button>
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
 

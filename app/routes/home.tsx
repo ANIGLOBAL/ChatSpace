@@ -260,7 +260,7 @@ export default function Home() {
             {modal === "create" ? (
               <>
                 <p className="mt-1 text-[12px] text-slate-500">
-                  {owned >= 1 ? "Bạn đã sở hữu 1 không gian — xoá không gian cũ trong Trang tài khoản để tạo mới." : "Mỗi tài khoản sở hữu tối đa 1 không gian."}
+                  {owned >= 1 ? "Bạn đã sở hữu ít nhất 1 không gian." : "Mỗi tài khoản sở hữu giới hạn: Free 1, Basic 2, Premium 3. Admin không giới hạn."}
                 </p>
                 <div className="mt-3 space-y-3">
                   <input
