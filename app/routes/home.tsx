@@ -21,7 +21,6 @@ export default function Home() {
   const [spaceCover, setSpaceCover] = useState<File | null>(null);
   const [msg, setMsg] = useState<{ text: string; bad?: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
-  const base = import.meta.env.BASE_URL;
 
   useEffect(() => {
     refresh();
@@ -125,7 +124,7 @@ export default function Home() {
     setSpaceAvatar(null);
     setSpaceCover(null);
     setBusy(false);
-    navigate(`${base}groups/${groupId}`);
+    navigate(`groups/${groupId}`);
   }
 
   function browseFile(target: "avatar" | "cover") {
@@ -153,7 +152,7 @@ export default function Home() {
     setJoinId("");
     setModal(null);
     setBusy(false);
-    navigate(`${base}groups/${joinId.trim()}`);
+    navigate(`groups/${joinId.trim()}`);
   }
 
   return (
@@ -216,7 +215,7 @@ export default function Home() {
                 className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
                 data-testid={`space-card-${space.groupId}`}
               >
-                <Link to={`${base}groups/${space.groupId}`} className="block p-5">
+                <Link to={`/groups/${space.groupId}`} className="block p-5">
                   <div className="flex items-center gap-3">
                     <span className="grid h-10 w-10 flex-none place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white">
                       {(space.displayName || "?").slice(0, 1).toUpperCase()}
