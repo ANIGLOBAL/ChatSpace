@@ -89,6 +89,15 @@ export default function GroupPage() {
     });
   }, [groupId, meta?.role]);
 
+  async function decide(requestId: string, action: "approve" | "reject") {
+    await api(`/api/spaces/${groupId}/requests/${requestId}`, {
+      method: "POST",
+      body: JSON.stringify({ action }),
+    });
+    loadRequests();
+    if (action === "approve") loadMembers();
+  }
+
   useEffect(() => {
     loadMeta();
   }, [loadMeta]);
