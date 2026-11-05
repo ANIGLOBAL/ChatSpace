@@ -282,13 +282,13 @@ export default function GroupPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 text-white shadow">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 text-white shadow min-h-48 sm:min-h-56">
         {meta.coverFileId ? (
-          <img src={`${apiBase()}/api/files/${meta.coverFileId}`} alt="Cover" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={`${apiBase()}/api/files/${meta.coverFileId}`} alt="Cover" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-r from-black/45 to-black/10" />
-        <div className="relative flex flex-wrap items-center gap-4 p-5 sm:p-6">
-          <span className="grid h-14 w-14 flex-none place-items-center overflow-hidden rounded-2xl bg-white/20 text-2xl font-bold backdrop-blur">
+        <div className="relative flex flex-wrap items-center gap-4 p-5 sm:p-6 sm:items-end min-h-48 sm:min-h-56">
+          <span className="grid h-16 w-16 flex-none place-items-center overflow-hidden rounded-2xl bg-white/20 text-2xl font-bold backdrop-blur ring-2 ring-white/30">
             {meta.avatarFileId ? (
               <img src={`${apiBase()}/api/files/${meta.avatarFileId}`} alt="Avatar" className="h-full w-full object-cover" />
             ) : (

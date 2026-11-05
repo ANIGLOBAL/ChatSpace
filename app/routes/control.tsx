@@ -237,7 +237,7 @@ export default function Control() {
     <main className="mx-auto max-w-4xl px-4 py-10 space-y-6">
       {/* PROFILE */}
       <section className={card} data-testid="profile-card">
-        <div className="h-28 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500">
+        <div className="relative h-48 sm:h-56 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500">
           {user.bannerFileId ? (
             <img src={`${apiBase()}/api/files/${user.bannerFileId}`} alt="Banner" className="h-full w-full object-cover" />
           ) : null}
