@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "chatspace-ui",
+  "main": "./workers/app.ts",
+  "compatibility_date": "2026-11-04",
+  "observability": {
+    "enabled": true
+  }
+}
