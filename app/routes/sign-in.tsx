@@ -59,7 +59,6 @@ export default function SignIn() {
           <input
             type="password"
             required
-            minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="Mật khẩu"
