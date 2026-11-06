@@ -35,6 +35,7 @@ type SpaceMeta = {
   description?: string | null;
   status?: string;
   requireOwnerApproval?: boolean;
+  allowMemberChat?: boolean;
   ownerUserId?: string;
   role?: "owner" | "admin" | "member";
   avatarFileId?: string | null;
@@ -60,6 +61,7 @@ export default function GroupPage() {
   const [showSettings, setShowSettings] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [attachFile, setAttachFile] = useState<File | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -256,12 +258,26 @@ export default function GroupPage() {
 
   async function sendMessage() {
     const text = draft.trim();
-    if (!text) return;
+    const attached = attachFile;
+    if (!text && !attached) return;
     setDraft("");
+    setAttachFile(null);
     setChatError(null);
+    let attachmentId: string | undefined;
+    if (attached) {
+      const form = new FormData();
+      form.append("file", attached);
+      const up = await fetch(`${apiBase()}/api/files`, { method: "POST", credentials: "include", body: form });
+      const payload = (await up.json().catch(() => null)) as { file?: { id?: string } } | null;
+      if (!up.ok || !payload?.file?.id) {
+        setChatError("Tải ảnh đính kèm thất bại.");
+        return;
+      }
+      attachmentId = payload.file.id;
+    }
     const answer = await api<{ message: Omit<ChatMessage, "mine"> }>(`/api/spaces/${groupId}/messages`, {
       method: "POST",
-      body: JSON.stringify({ body: text }),
+      body: JSON.stringify({ body: text, attachmentId }),
     });
     if (!answer.ok) {
       if (answer.status === 413) setChatError("Tin nhắn quá dài (tối đa 4000 ký tự).");
@@ -328,7 +344,8 @@ export default function GroupPage() {
       {notice ? <p className="mt-4 text-[13px] text-emerald-600 dark:text-emerald-400">{notice}</p> : null}
 
       {showSettings && isOwner ? (
-        <section className="mt-4 rounded-2xl border border-indigo-200 bg-indigo-50/50 p-5 dark:border-indigo-900/50 dark:bg-indigo-950/20" data-testid="owner-settings">
+        <div className="fixed inset-0 z-40 grid place-items-center bg-slate-900/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" data-testid="modal-overlay">
+        <section className="w-full max-h-[92vh] overflow-y-auto rounded-2xl border border-indigo-200 bg-indigo-50/50 p-5 dark:border-indigo-900/50 dark:bg-indigo-950/20" data-testid="owner-settings">
           <h3 className="text-[14px] font-bold text-slate-800 dark:text-slate-100">Cài đặt Owner</h3>
           <div className="mt-3 flex flex-wrap items-end gap-3">
             <label className="text-[13px] text-slate-700 dark:text-slate-200">
@@ -366,6 +383,26 @@ export default function GroupPage() {
               <span className="block text-[11px] font-normal text-slate-500">{meta.requireOwnerApproval === true ? "Chủ nhóm duyệt từng lượt" : "Cho phép tham gia trực tiếp"}</span>
             </span>
             </button>
+            <div className="flex items-center gap-3" data-testid="member-chat-switch">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={meta.allowMemberChat !== false}
+                onClick={async () => {
+                  const next = meta.allowMemberChat === false;
+                  const answer = await api(`/api/spaces/${groupId}`, { method: "PATCH", body: JSON.stringify({ allowMemberChat: next }) });
+                  setNotice(answer.ok ? (next ? "Đã cho phép thành viên nhắn tin." : "Đã khoá nhắn tin của member — chỉ Admin/Owner được nhắn.") : answer.error);
+                  loadMeta();
+                }}
+                className={"relative inline-flex h-7 w-12 items-center rounded-full transition-colors " + (meta.allowMemberChat === false ? "bg-slate-300 dark:bg-slate-600" : "bg-emerald-500")}
+              >
+                <span className={"inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform " + (meta.allowMemberChat === false ? "translate-x-0.5" : "translate-x-5")} />
+              </button>
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200">
+                Cho phép member nhắn tin
+                <span className="block text-[11px] font-normal text-slate-500">{meta.allowMemberChat === false ? "Chỉ Admin và Owner được nhắn" : "Mọi thành viên đều được nhắn"}</span>
+              </span>
+            </div>
           </div>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -465,6 +502,7 @@ export default function GroupPage() {
             </div>
           ) : null}
         </section>
+        </div>
       ) : null}
 
       {isOwner && requests.length > 0 ? (
@@ -519,7 +557,13 @@ export default function GroupPage() {
                       )}
                       <div className={"max-w-[72%] " + (message.mine ? "items-end" : "")}>
                         <div className={message.mine ? "rounded-2xl rounded-br-md bg-indigo-600 px-4 py-2 text-[14px] leading-6 text-white shadow-sm" : "rounded-2xl rounded-bl-md bg-slate-100 px-4 py-2 text-[14px] leading-6 text-slate-800 shadow-sm dark:bg-slate-800 dark:text-slate-100"}>
-                          <p className="whitespace-pre-wrap break-words">{message.body}</p>
+                          {message.body ? <p className="whitespace-pre-wrap break-words">{message.body}</p> : null}
+                          {message.attachment ? (
+                            <a href={`${apiBase()}/api/files/${message.attachment.id}`} target="_blank" rel="noreferrer" className="mt-1 block max-w-56">
+                              <img src={`${apiBase()}/api/files/${message.attachment.id}`} alt={message.attachment.name} className="max-h-40 w-auto rounded-lg object-cover" loading="lazy" />
+                              <span className="mt-0.5 block text-[11px] opacity-75">{message.attachment.name}</span>
+                            </a>
+                          ) : null}
                         </div>
                         <p className={"mt-1 text-[10px] text-slate-400 " + (message.mine ? "text-right" : "")}>
                           {message.mine ? "Bạn" : message.senderName} · {message.sentAt}
@@ -537,7 +581,30 @@ export default function GroupPage() {
               event.preventDefault();
               void sendMessage();
             }}>
-              <input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Nhập tin nhắn… (Enter để gửi)" maxLength={4000} className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-[14px] text-slate-800 outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100" />
+              {attachFile ? (
+              <span className="flex items-center gap-2 text-[12px] text-slate-600 dark:text-slate-300">
+                <button
+                  type="button"
+                  onClick={() => setAttachFile(null)}
+                  aria-label="Bỏ ảnh đính kèm"
+                  className="rounded-full bg-slate-200 px-2 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                >
+                  ✕
+                </button>
+                Ảnh: {attachFile.name}
+              </span>
+            ) : (
+              <label className="cursor-pointer rounded-xl border border-slate-300 px-2.5 py-2 text-[13px] text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800" title="Gửi ảnh">
+                📎
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => setAttachFile(event.target.files?.[0] ?? null)}
+                />
+              </label>
+            )}
+            <input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Nhập tin nhắn… (Enter để gửi)" maxLength={4000} className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-[14px] text-slate-800 outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100" />
               <button type="submit" className="rounded-xl bg-indigo-600 px-4 py-2.5 text-[13px] font-semibold text-white shadow transition hover:bg-indigo-500">
                 Gửi
               </button>
