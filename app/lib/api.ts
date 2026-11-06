@@ -70,6 +70,8 @@ export type SpaceRow = {
   role: "owner" | "admin" | "member";
   lastReadAt: string | null;
   joinedAt: string;
+  avatarFileId?: string | null;
+  coverFileId?: string | null;
 };
 
 export async function getSessionUser(): Promise<MiniUser | null> {

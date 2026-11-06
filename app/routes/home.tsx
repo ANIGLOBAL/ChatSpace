@@ -256,8 +256,12 @@ export default function Home() {
               >
                 <Link to={`/groups/${space.groupId}`} className="block p-5">
                   <div className="flex items-center gap-3">
-                    <span className="grid h-10 w-10 flex-none place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white">
-                      {(space.displayName || "?").slice(0, 1).toUpperCase()}
+                    <span className="grid h-10 w-10 flex-none place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white">
+                      {space.avatarFileId ? (
+                        <img src={`${apiBase()}/api/files/${space.avatarFileId}`} alt={space.displayName} className="h-full w-full object-cover" loading="lazy" />
+                      ) : (
+                        (space.displayName || "?").slice(0, 1).toUpperCase()
+                      )}
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate font-bold text-slate-900 dark:text-white">{space.displayName}</span>
