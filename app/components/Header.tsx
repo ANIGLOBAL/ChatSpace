@@ -32,16 +32,30 @@ export function Header({ user }: { user: MiniUser | null }) {
             Không gian
           </NavLink>
           {user ? (
-            <NavLink
-              to="/control"
-              className={({ isActive }) =>
-                isActive
-                  ? "rounded-md px-2.5 py-1.5 font-semibold text-indigo-600 dark:text-indigo-400"
-                  : "rounded-md px-2.5 py-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-              }
-            >
-              Tài khoản
-            </NavLink>
+            <>
+              <NavLink
+                to="/control"
+                className={({ isActive }) =>
+                  isActive
+                    ? "rounded-md px-2.5 py-1.5 font-semibold text-indigo-600 dark:text-indigo-400"
+                    : "rounded-md px-2.5 py-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                }
+              >
+                Tài khoản
+              </NavLink>
+              {user.role === "admin" ? (
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    isActive
+                      ? "rounded-md px-2.5 py-1.5 font-semibold text-amber-600 dark:text-amber-400"
+                      : "rounded-md px-2.5 py-1.5 font-semibold text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-slate-800"
+                  }
+                >
+                  Quản trị
+                </NavLink>
+              ) : null}
+            </>
           ) : null}
         </nav>
         <div className="ml-auto flex items-center gap-2">

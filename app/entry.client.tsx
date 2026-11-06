@@ -9,6 +9,7 @@ import SignUp from "./routes/sign-up";
 import GroupPage from "./routes/groups.$groupId";
 import MemberPage from "./routes/members.$userId";
 import Control from "./routes/control";
+import Admin from "./routes/admin";
 
 // basename theo nơi triển khai: workers "/" còn GitHub Pages /ChatSpace/.
 const basename = import.meta.env.BASE_URL;
@@ -25,6 +26,7 @@ const router = createBrowserRouter(
         { path: "groups/:groupId", element: <GroupPage /> },
         { path: "members/:userId", element: <MemberPage /> },
         { path: "control", element: <Control /> },
+        { path: "admin", element: <Admin /> },
       ],
     },
   ],

@@ -7,4 +7,5 @@ export default [
   route("groups/:groupId", "routes/groups.$groupId.tsx"),
   route("members/:userId", "routes/members.$userId.tsx"),
   route("control", "routes/control.tsx"),
+  route("admin", "routes/admin.tsx"),
 ] satisfies RouteConfig;

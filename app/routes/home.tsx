@@ -5,7 +5,7 @@ import { api, uploadImageFile, type MiniUser, type SpaceRow } from "~/lib/api";
 
 type OutletCtx = { user: MiniUser | null; refreshUser: () => void };
 
-type ModalMode = "create" | "join" | null;
+type ModalMode = "chat" | "create" | "join" | null;
 
 export default function Home() {
   const { user } = useOutletContext<OutletCtx>();
@@ -14,6 +14,8 @@ export default function Home() {
   const [owned, setOwned] = useState<number>(0);
   const [modal, setModal] = useState<ModalMode>(null);
   const [joinId, setJoinId] = useState("");
+  const [dmPeerId, setDmPeerId] = useState("");
+  const [dmLink, setDmLink] = useState<string | null>(null);
   const [createName, setCreateName] = useState("");
   const [createDescription, setCreateDescription] = useState("");
   const [createApproval, setCreateApproval] = useState(false);
@@ -140,6 +142,28 @@ export default function Home() {
     input.click();
   }
 
+  async function createDm() {
+    if (!dmPeerId.trim()) {
+      setMsg({ text: "Nhập ID người dùng cần nhắn (user ID).", bad: true });
+      return;
+    }
+    setBusy(true);
+    const answer = await api<{ conversation?: { id: string }; id?: string }>("/api/conversations", {
+      method: "POST",
+      body: JSON.stringify({ kind: "dm", userId: dmPeerId.trim() }),
+    });
+    setBusy(false);
+    if (!answer.ok) {
+      setMsg({ text: answer.error, bad: true });
+      return;
+    }
+    const conversationId = answer.data.conversation?.id ?? answer.data.id;
+    const url = `https://aniglobal.github.io/ChatIndex/dm/${conversationId ?? ""}`;
+    setDmLink(url);
+    setMsg({ text: `DM đã sẵn sàng — mở ChatIndex để nhắn: ${url}` });
+    setDmPeerId("");
+  }
+
   async function joinSpace() {
     if (!joinId.trim()) return;
     setBusy(true);
@@ -171,9 +195,21 @@ export default function Home() {
             type="button"
             onClick={() => {
               setMsg(null);
-              setModal("create");
+              setDmLink(null);
+              setModal("chat");
             }}
             className="rounded-xl bg-indigo-600 px-4 py-2.5 text-[14px] font-semibold text-white shadow transition hover:bg-indigo-500"
+            data-testid="open-chat"
+          >
+            ＋ Thêm trò chuyện
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMsg(null);
+              setModal("create");
+            }}
+            className="rounded-xl bg-indigo-600 px-4 py-2.5 text-[14px] font-semibold text-white shadow transition hover:bg-indigo-500 hidden"
             data-testid="open-create"
           >
             + Tạo Group Space
@@ -184,7 +220,7 @@ export default function Home() {
               setMsg(null);
               setModal("join");
             }}
-            className="rounded-xl border border-indigo-600 bg-white px-4 py-2.5 text-[14px] font-semibold text-indigo-600 transition hover:bg-indigo-50 dark:bg-slate-900 dark:hover:bg-slate-800"
+            className="rounded-xl border border-indigo-600 bg-white px-4 py-2.5 text-[14px] font-semibold text-indigo-600 transition hover:bg-indigo-50 dark:bg-slate-900 dark:hover:bg-slate-800 hidden"
             data-testid="open-join"
           >
             Tham gia bằng Group ID
@@ -238,9 +274,49 @@ export default function Home() {
         )}
       </section>
 
-      {modal ? (
+      {modal === "chat" ? (
         <div className="fixed inset-0 z-40 grid place-items-center bg-slate-900/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
-          <div className={modal === "create" ? "w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900" : "w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"} data-testid="modal">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900" data-testid="modal-chat">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Thêm trò chuyện</h2>
+              <button type="button" aria-label="Đóng" onClick={() => setModal(null)} className="ml-auto rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                className="rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-left dark:border-indigo-900 dark:bg-indigo-950/30"
+              >
+                <span className="text-2xl">💬</span>
+                <p className="mt-1 font-bold text-slate-900 dark:text-white">DM cá nhân</p>
+                <p className="mt-0.5 text-[12px] text-slate-500">Nhắn với đúng 1 người — cần user ID.</p>
+              </button>
+              <button type="button" className="rounded-xl border border-violet-200 bg-violet-50 p-4 text-left dark:border-violet-900 dark:bg-violet-950/30" onClick={() => setModal("create")}>
+                <span className="text-2xl">👥</span>
+                <p className="mt-1 font-bold text-slate-900 dark:text-white">Group</p>
+                <p className="mt-0.5 text-[12px] text-slate-500">Tạo Group Space mới hoặc tham gia bằng Group ID.</p>
+              </button>
+            </div>
+            <div className="mt-4 space-y-3 border-t border-slate-200 pt-4 dark:border-slate-700" data-testid="dm-form">
+              <label className="block text-[12px] font-semibold text-slate-700 dark:text-slate-200">
+                DM — Nhập user ID của người thân thiết
+                <input value={dmPeerId} onChange={(event) => setDmPeerId(event.target.value)} placeholder="user ID (ví dụ: qa-cs-b-user)" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-900" />
+              </label>
+              <button type="button" disabled={busy} onClick={() => void createDm()} className="w-full rounded-xl bg-indigo-600 px-3 py-2.5 text-[13px] font-semibold text-white transition hover:bg-indigo-500" data-testid="btn-create-dm">
+                Tạo cuộc trò chuyện 1–1
+              </button>
+              {dmLink ? (
+                <p className="text-[11px] break-all text-slate-500">
+                  Mở: <a className="font-semibold text-indigo-600 underline" href={dmLink}>{dmLink}</a> (ChatIndex DM)
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {modal && modal !== "chat" ? (
+        <div className="fixed inset-0 z-40 grid place-items-center bg-slate-900/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900" data-testid="modal">
             <div className="flex items-center gap-3">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                 {modal === "create" ? "Tạo Group Space" : "Tham gia bằng Group ID"}
