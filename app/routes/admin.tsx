@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router";
 
 import { api, type MiniUser } from "~/lib/api";
@@ -263,9 +263,9 @@ export default function Admin() {
                           value={adminUser.plan ?? "free"}
                           onChange={(event) => {
                             const next = event.target.value;
-                            event.target.value = adminUser.plan ?? "free";
+                            const label = next === "basic" ? "Basic" : next === "premium" ? "Premium" : "Miễn phí";
                             void adminPost({ userId: adminUser.id, action: "set_plan", plan: next }).then((answer) => {
-                              setMsg(answer.ok ? { text: `Đã đặt gói cho ${adminUser.name} thành ${next === "basic" ? "Basic" : next === "premium" ? "Premium" : "Miễn phí"}.` } : { text: answer.error, bad: true });
+                              setMsg(answer.ok ? { text: `Đã đặt gói cho ${adminUser.name} thành ${label}.` } : { text: answer.error, bad: true });
                               return loadUsers();
                             });
                           }}
