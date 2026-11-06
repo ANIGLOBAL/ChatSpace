@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router";
 
-import { api, uploadImageFile, type MiniUser, type SpaceRow } from "~/lib/api";
+import { api, apiBase, uploadImageFile, type MiniUser, type SpaceRow } from "~/lib/api";
 
 type OutletCtx = { user: MiniUser | null; refreshUser: () => void };
 
