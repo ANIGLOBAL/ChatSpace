@@ -144,14 +144,15 @@ export default function Home() {
   }
 
   async function createDm() {
-    if (!dmPeerId.trim()) {
-      setMsg({ text: "Nhập ID người dùng cần nhắn (user ID).", bad: true });
+    const peer = dmPeerId.trim().toLowerCase();
+    if (!peer) {
+      setMsg({ text: "Nhập tên người dùng (username) của người kia.", bad: true });
       return;
     }
     setBusy(true);
     const answer = await api<{ conversation?: { id: string }; id?: string }>("/api/conversations", {
       method: "POST",
-      body: JSON.stringify({ kind: "dm", userId: dmPeerId.trim() }),
+      body: JSON.stringify({ kind: "dm", username: peer }),
     });
     setBusy(false);
     if (!answer.ok) {
@@ -293,7 +294,7 @@ export default function Home() {
               >
                 <span className="text-2xl">💬</span>
                 <p className="mt-1 font-bold text-slate-900 dark:text-white">DM cá nhân</p>
-                <p className="mt-0.5 text-[12px] text-slate-500">Nhắn với đúng 1 người — cần user ID.</p>
+                <p className="mt-0.5 text-[12px] text-slate-500">Nhắn với đúng 1 người — cần username của họ.</p>
                 {dmPick ? <p className="mt-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-300">✓ ĐÃ CHỌN</p> : null}
               </button>
               <button
@@ -311,8 +312,8 @@ export default function Home() {
             {dmPick ? (
               <div className="mt-4 space-y-3 border-t border-slate-200 pt-4 dark:border-slate-700" data-testid="dm-form">
                 <label className="block text-[12px] font-semibold text-slate-700 dark:text-slate-200">
-                  Nhập user ID của người thân thiết
-                  <input value={dmPeerId} onChange={(event) => setDmPeerId(event.target.value)} placeholder="user ID (ví dụ: qa-cs-b-user)" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-900" />
+                  Nhập tên người dùng (username) của người thân thiết
+                  <input value={dmPeerId} onChange={(event) => setDmPeerId(event.target.value)} placeholder="username (ví dụ: qa-cs-b)" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[13px] outline-none focus:border-indigo-500 dark:border-slate-600 dark:bg-slate-900" />
                 </label>
                 <button type="button" disabled={busy} onClick={() => void createDm()} className="w-full rounded-xl bg-indigo-600 px-3 py-2.5 text-[13px] font-semibold text-white transition hover:bg-indigo-500" data-testid="btn-create-dm">
                   Tạo cuộc trò chuyện 1–1
